@@ -5,8 +5,11 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import axiosClient from "../../axiosClient";
 import { useStateContext } from "../../contexts/contextprovider";
 import '../adminAcceuil.css'; // Import the CSS file
+import { Link } from "react-router-dom";
 
+import welcomeImage from '../../../../resources/image/reclamation.png';
 export default function citoyenAcceuil(){
+
   const {user, token, setUser, setToken} = useStateContext();
   const location = useLocation();
 
@@ -43,11 +46,27 @@ export default function citoyenAcceuil(){
         }
       });
   }, []);
+  const isExcludedPath = location.pathname === "/citoyenAcceuil/reclamation";
+
 
     return(
       <div id="defaultLayout">
       <aside className="sidebar">
-        <div className="logo">Reclaim-App</div>
+      <Link
+  to="/citoyenAcceuil"
+  className="logo"
+  style={{
+    color: 'black', // Couleur du texte
+    textDecoration: 'none', // Pas de soulignement
+    fontSize: '18px', // Taille de la police
+    padding: '5px 10px', // Ajout d'un peu de padding pour l'espacement
+    transition: 'background-color 0.3s', // Transition pour le changement de couleur d'arrière-plan
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'transparent')} // Couleur d'arrière-plan transparente au survol
+>
+  Reclaim-App
+</Link>
+
         <nav className="nav">
           <ul>
             <li className={`nav-item ${location.pathname === "/citoyenAcceuil" ? "active" : ""}`}>
@@ -78,8 +97,23 @@ export default function citoyenAcceuil(){
           </div>
         </header>
         <main className="main-content">
-          <Outlet /> {/* Render child routes here */}
-        </main>
+                    {!isExcludedPath && (
+                  <div className="welcome-message">
+                  <h1>Bienvenue, Citoyen, dans votre plateforme !</h1>
+                  <p>
+                    Cette plateforme est conçue pour vous permettre de soumettre vos réclamations de manière simple et efficace, et de suivre leur évolution en temps réel. Nous sommes ici pour vous aider à faire entendre votre voix.
+                  </p>
+                  <div className="welcome-image">
+                    <img src={welcomeImage} alt="Welcome" style={{ width: '100%', height: 'auto' }} />
+                  </div>
+                </div>
+                
+                    )}
+                    <Outlet /> {/* Render child routes here */}
+
+
+
+                </main>
       </div>
     </div>
     )

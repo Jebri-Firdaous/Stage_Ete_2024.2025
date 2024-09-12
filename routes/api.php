@@ -42,6 +42,13 @@ Route::get('/profile', [UserController::class, 'showProfile']);
 Route::post('/reclamations/{id}/replies', [RecommendationController::class, 'addReply']);
 Route::get('/recommendations', [RecommendationController::class, 'index']);
 Route::put('/recommendations/{id}', [RecommendationController::class, 'updateRecommendation']);
+Route::delete('/recommendations/{id}', [RecommendationController::class, 'destroy']);
+
+
+// Assurez-vous que cette route est correctement définie
+Route::get('/recommendationsByReclamation/{idRec}', [RecommendationController::class, 'getRecommendationsByReclamation']);
+
+
 
 
 

@@ -44,11 +44,11 @@ export default function ForgotPassword() {
         <h1 className="title">Mot de passe oublié</h1>
         <form onSubmit={handleSubmit}>
           <input ref={emailRef} type="email" placeholder="Adresse mail" required />
-          <button className="btn btn-block">Envoyer le lien de réinitialisation</button>
+          <button className="btn btn-block" style={{ backgroundColor :'#4c92ca', textDecoration :'none'}}>Envoyer le lien de réinitialisation</button>
           {error && <div className="message error">{error}</div>}
           {success && <div className="message success">{success}</div>}
           <div className="message">
-            Vous vous souvenez de votre mot de passe? <Link to="/login">Connexion</Link>
+            Vous vous souvenez de votre mot de passe? <Link to="/login" style={{ color :'#4c92ca', textDecoration :'none'}}>Connexion</Link>
           </div>
         </form>
       </div>

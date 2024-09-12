@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../reclamation.css'; // Import the CSS file
 
 export default function Reclamation() {
   const [reclamations, setReclamations] = useState([]);
-  const [recommendations, setRecommendations] = useState([]); // New state for recommendations
+  const [recommendations, setRecommendations] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [selectedState, setSelectedState] = useState('');
@@ -19,8 +20,8 @@ export default function Reclamation() {
       })
       .then(response => {
         setUser(response.data);
-        fetchReclamations(); // Fetch reclamations once user data is available
-        fetchRecommendations(); // Fetch recommendations
+        fetchReclamations();
+        fetchRecommendations();
       })
       .catch(error => {
         console.error('Error verifying user:', error.response ? error.response.data : error.message);
@@ -33,13 +34,7 @@ export default function Reclamation() {
       headers: { 'Authorization': `Bearer ${token.trim()}` }
     })
     .then(response => {
-      if (Array.isArray(response.data)) {
-        setReclamations(response.data);
-      } else if (response.data.reclamations) {
-        setReclamations(response.data.reclamations);
-      } else {
-        console.error('Unexpected data structure:', response.data);
-      }
+      setReclamations(Array.isArray(response.data) ? response.data : response.data.reclamations || []);
     })
     .catch(error => {
       console.error('Error fetching reclamations:', error.response ? error.response.data : error.message);
@@ -51,6 +46,7 @@ export default function Reclamation() {
       headers: { 'Authorization': `Bearer ${token.trim()}` }
     })
     .then(response => {
+      console.log('Recommendations fetched:', response.data); // Vérifiez les données
       setRecommendations(response.data);
     })
     .catch(error => {
@@ -60,8 +56,7 @@ export default function Reclamation() {
 
   const handleFormSubmit = (event) => {
     event.preventDefault();
-    const form = event.target;
-    const description = form.description.value;
+    const description = event.target.description.value;
     const payload = new FormData();
     payload.append('description', description);
     payload.append('idCitoyen', user ? user.id : '');
@@ -79,7 +74,7 @@ export default function Reclamation() {
         })
         .then(() => {
           setShowForm(false);
-          fetchReclamations(); // Refresh the list after adding a new reclamation
+          fetchReclamations();
         })
         .catch(err => {
           console.error('Error adding reclamation:', err.response ? err.response.data : err.message);
@@ -94,8 +89,7 @@ export default function Reclamation() {
 
   const handleUpdateSubmit = (event) => {
     event.preventDefault();
-    const form = event.target;
-    const description = form.description.value;
+    const description = event.target.description.value;
 
     axios.get('http://localhost:8000/sanctum/csrf-cookie')
       .then(() => {
@@ -113,7 +107,7 @@ export default function Reclamation() {
           ));
           setShowUpdateForm(false);
           setEditReclamation(null);
-          fetchReclamations(); // Refresh the list after updating a reclamation
+          fetchReclamations();
           console.log('Réclamation mise à jour:', response.data);
         })
         .catch(err => {
@@ -123,29 +117,41 @@ export default function Reclamation() {
   };
 
   const handleDelete = (idRec) => {
-    if (window.confirm('Voulez-vous vraiment supprimer cette réclamation ?')) {
-      axios.get('http://localhost:8000/sanctum/csrf-cookie')
-        .then(() => {
-          const csrfToken = axios.defaults.headers.common['X-CSRF-TOKEN'];
-          axios.delete(`http://localhost:8000/api/reclamations/${idRec}`, {
-            withCredentials: true,
-            headers: {
-              'Authorization': `Bearer ${token.trim()}`,
-              'X-CSRF-TOKEN': csrfToken
-            }
+    if (window.confirm('Voulez-vous vraiment supprimer cette réclamation et ses recommandations ?')) {
+      axios.get(`http://localhost:8000/api/recommendationsByReclamation/${idRec}`, {
+        headers: { 'Authorization': `Bearer ${token.trim()}` }
+      })
+      .then(response => {
+        console.log('Recommendations for reclamation:', response.data); // Vérifiez les données
+        const recommendationsForReclamation = response.data;
+
+        // Filtrer les recommandations avec un ID valide
+        const validRecommendations = recommendationsForReclamation.filter(recommendation => recommendation.idComment);
+
+        // Supprimer les recommandations
+        const deleteRecommendationsPromises = validRecommendations.map(recommendation =>
+          axios.delete(`http://localhost:8000/api/recommendations/${recommendation.idComment}`, {
+            headers: { 'Authorization': `Bearer ${token.trim()}` }
           })
-          .then(response => {
-            setReclamations(reclamations.filter(reclamation => reclamation.idRec !== idRec));
-            console.log('Réclamation supprimée:', response.data);
-          })
-          .catch(error => {
-            console.error('Erreur lors de la suppression:', error.response ? error.response.data : error.message);
-          });
+        );
+
+        return Promise.all(deleteRecommendationsPromises);
+      })
+      .then(() => {
+        return axios.delete(`http://localhost:8000/api/reclamations/${idRec}`, {
+          headers: { 'Authorization': `Bearer ${token.trim()}` }
         });
+      })
+      .then(response => {
+        setReclamations(reclamations.filter(reclamation => reclamation.idRec !== idRec));
+        console.log('Réclamation et recommandations supprimées:', response.data);
+      })
+      .catch(error => {
+        console.error('Erreur lors de la suppression:', error.response ? error.response.data : error.message);
+      });
     }
   };
 
-  // Filter reclamations based on user, state, and search query
   const filteredReclamations = reclamations.filter(reclamation => {
     const matchesUser = user && reclamation.idCitoyen === user.id;
     const matchesState = !selectedState || reclamation.status === parseInt(selectedState);
@@ -154,12 +160,9 @@ export default function Reclamation() {
     return matchesUser && matchesState && matchesSearch;
   });
 
-// Get recommendations that match reclamation id
-const getRecommendationsForReclamation = (idRec) => {
-  const recs = recommendations.filter(recommendation => recommendation.idRec === idRec);
-  return recs.length > 0 ? recs : [{ text: 'Aucune recommandation' }];
-};
-
+  const getRecommendationsForReclamation = (idRec) => {
+    return recommendations.filter(recommendation => recommendation.idRec === idRec);
+  };
 
   return (
     <div className="gestion-user-container">
@@ -174,33 +177,58 @@ const getRecommendationsForReclamation = (idRec) => {
             className="search-input"
           />
           <div className="role-filter">
-            <label>Filtrer par status:</label>
+            <label>Filtrer par statut:</label>
             <select onChange={(e) => setSelectedState(e.target.value)} value={selectedState}>
-              <option value="">Tous les status</option>
-              <option value="1">traité</option>
-              <option value="0">non traité</option>
-              <option value="2">en attente</option>
+              <option value="">Tous les statuts</option>
+              <option value="1">Traitée</option>
+              <option value="0">Non traitée</option>
+              <option value="2">En attente</option>
             </select>
           </div>
           <button className="ajouter-utilisateur" onClick={() => setShowForm(true)}>Ajouter Réclamation</button>
         </div>
       </div>
-      {showForm ? (
-        <form onSubmit={handleFormSubmit}>
-          <label>Description:</label>
-          <input type="text" name="description" required />
-          <br />
-          <button type="submit">Ajouter</button>
-          <button type="button" className="ajouter-utilisateur" onClick={() => setShowForm(false)}>Retour à la liste</button>
-        </form>
-      ) : showUpdateForm ? (
-        <form onSubmit={handleUpdateSubmit}>
-          <label>Description:</label>
-          <input type="text" name="description" defaultValue={editReclamation.description} required />
-          <br />
-          <button type="submit">Mettre à jour</button>
-          <button type="button" className="ajouter-utilisateur" onClick={() => setShowUpdateForm(false)}>Annuler</button>
-        </form>
+      {showUpdateForm ? (
+  <form onSubmit={handleUpdateSubmit} className="user-form">
+    <div style={{
+      width: '204%',
+      height: '200px',
+      border: '2px solid #e6e6e6',
+      margin: '0 0 0px',
+      padding: '15px',
+      boxSizing: 'border-box',
+      fontSize: '14px',
+      transition: 'all 0.3s',
+      overflow: 'hidden',
+      color :'black',
+      fontSize : '20px',
+    }}>
+      <label>Description:</label>
+      <textarea
+        name="description"
+        defaultValue={editReclamation ? editReclamation.description : ''}
+        required
+        style={{
+          width: '100%',
+          height: '80%',
+          fontSize: '15px',
+          textAlign: 'left',
+          verticalAlign: 'top',
+          padding: '10px',
+          boxSizing: 'border-box',
+          resize: 'none',
+          overflow: 'auto',
+          lineHeight: '1.2',
+        }}
+      />
+    </div>
+    <div className="form-buttons">
+      <div className="button-container">
+        <button type="submit" className="btn-primary">Mettre à jour</button>
+        <button type="button" className="btn-secondary" onClick={() => setShowUpdateForm(false)}>Annuler</button>
+      </div>
+    </div>
+  </form>
       ) : (
         <table className="user-table">
           <thead>
@@ -208,8 +236,8 @@ const getRecommendationsForReclamation = (idRec) => {
               <th style={{ width: '40%' }}>Description</th>
               <th>Date Soumission</th>
               <th>Status</th>
-              <th>Recommandations</th> {/* New column */}
-              <th>Action</th>
+              <th>Recommandations</th>
+              <th style={{ width: '20%' }}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -224,10 +252,12 @@ const getRecommendationsForReclamation = (idRec) => {
                   {reclamation.status === 1 && <span>✅</span>}
                   {reclamation.status === 2 && <span>⏳</span>}
                 </td>
-                <td>
-                  <ul>
-                    {getRecommendationsForReclamation(reclamation.idRec).map(recommendation => (
-                      <li key={recommendation.idRec}>{recommendation.text}</li>
+                <td style={{ maxWidth: '10%', wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                  <ul style={{ padding: '0', margin: '0', listStyleType: 'none' }}>
+                    {getRecommendationsForReclamation(reclamation.idRec).map((recommendation, index) => (
+                      <li key={`${reclamation.idRec}-${index}`} style={{ marginBottom: '5px' }}>
+                        {recommendation.text}
+                      </li>
                     ))}
                   </ul>
                 </td>

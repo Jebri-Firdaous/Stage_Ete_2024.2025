@@ -6,7 +6,9 @@ export default function GestionUser() {
   const [users, setUsers] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     fetchUsers();
@@ -29,6 +31,7 @@ export default function GestionUser() {
 
   const backToList = () => {
     setShowForm(false);
+    setErrors({}); // Clear errors when returning to the list
   };
 
   const handleFormSubmit = (event) => {
@@ -48,7 +51,8 @@ export default function GestionUser() {
     })
     .catch((err) => {
         if (err.response && err.response.status === 422) {
-            console.error('Validation errors:', err.response.data.errors);
+            const errors = err.response.data.errors;
+            setErrors(errors);
         } else {
             console.error('Server Error:', err.response || err.message);
         }
@@ -104,45 +108,68 @@ export default function GestionUser() {
         </div>
       </div>
       {showForm ? (
-        <form onSubmit={handleFormSubmit}>
-          <label>Nom:</label>
-          <input type="text" name="name" required />
-          <br />
-          <label>Prénom:</label>
-          <input type="text" name="prenom" required />
-          <br />
-          <label>Âge:</label>
-          <input type="number" name="age" required />
-          <br />
-          <label>Genre:</label>
-          <select name="genre" required>
-            <option value="" disabled>Sélectionner un genre</option>
-            <option value="FEMME">FEMME</option>
-            <option value="HOMME">HOMME</option>
-          </select>
-          <br />
-          <label>Rôle:</label>
-          <select name="role" required>
-            <option value="" disabled>Sélectionner un rôle</option>
-            <option value="CITOYEN">CITOYEN</option>
-            <option value="ADMINISTRATEUR">ADMINISTRATEUR</option>
-            <option value="AGENT">AGENT</option>
-          </select>
-          <br />
-          <label>Email:</label>
-          <input type="email" name="email" required />
-          <br />
-          <label>Password:</label>
-          <input type="password" name="password" required />
-          <br />
-          <label>Téléphone:</label>
-          <input type="tel" name="telephone" required />
-          <br />
-          <label>Photo:</label>
-          <input type="file" name="photo" />
-          <br />
-          <button type="submit">Ajouter</button>
-          <button type="button" className="ajouter-utilisateur" onClick={backToList}>Retour à la liste</button>
+        <form onSubmit={handleFormSubmit} className="user-form">
+          <div className="form-group">
+            <label>Nom:</label>
+            <input type="text" name="name" />
+            {errors.name && <span className="error-message">{errors.name[0]}</span>}
+          </div>
+          <div className="form-group">
+            <label>Prénom:</label>
+            <input type="text" name="prenom" />
+            {errors.prenom && <span className="error-message">{errors.prenom[0]}</span>}
+          </div>
+          <div className="form-group">
+            <label>Âge:</label>
+            <input type="number" name="age" />
+            {errors.age && <span className="error-message">{errors.age[0]}</span>}
+          </div>
+          <div className="form-group">
+            <label>Genre:</label>
+            <select name="genre" value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)}>
+              <option value="" disabled>Sélectionner un genre</option>
+              <option value="FEMME">FEMME</option>
+              <option value="HOMME">HOMME</option>
+            </select>
+            {errors.genre && <span className="error-message">{errors.genre[0]}</span>}
+          </div>
+
+  
+
+          <div className="form-group">
+            <label>Email:</label>
+            <input type="email" name="email" />
+            {errors.email && <span className="error-message">Veuillez entrer une adresse e-mail valide</span>}
+          </div>
+          <div className="form-group">
+            <label>Password:</label>
+            <input type="password" name="password" />
+            {errors.password && <span className="error-message">{errors.password[0]}</span>}
+          </div>
+          <div className="form-group">
+            <label>Téléphone:</label>
+            <input type="tel" name="telephone" />
+            {errors.telephone && <span className="error-message">{errors.telephone[0]}</span>}
+          </div>
+          <div className="form-group">
+            <label>Photo:</label>
+            <input type="file" name="photo" />
+            {errors.photo && <span className="error-message">{errors.photo[0]}</span>}
+          </div>
+          <div className="form-group" >
+            <label>Rôle:</label>
+            <select name="role" value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}>
+              <option value="" disabled>Sélectionner un rôle</option>
+              <option value="CITOYEN">CITOYEN</option>
+              <option value="ADMINISTRATEUR">ADMINISTRATEUR</option>
+              <option value="AGENT">AGENT</option>
+            </select>
+            {errors.role && <span className="error-message">{errors.role[0]}</span>}
+          </div>
+          <div className="form-buttons">
+            <button type="submit" className="btn-primary">Ajouter</button>
+            <button type="button" className="btn-secondary" onClick={backToList}>Retour à la liste</button>
+          </div>
         </form>
       ) : (
         <table className="user-table">

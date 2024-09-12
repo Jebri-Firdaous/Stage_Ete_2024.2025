@@ -5,6 +5,9 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import axiosClient from "../../axiosClient";
 import { useStateContext } from "../../contexts/contextprovider";
 import '../adminAcceuil.css'; // Import the CSS file
+import { Link } from "react-router-dom";
+
+import welcomeImage from '../../../../resources/image/adminwelcome.jpg';
 
 export default function AdminAcceuil(){
     const {user, token, setUser, setToken} = useStateContext();
@@ -43,15 +46,21 @@ export default function AdminAcceuil(){
         });
     }, []);
 
+    const isExcludedPath = location.pathname === "/adminAcceuil/gestionUser" || location.pathname === "/adminAcceuil/gestionRec"|| location.pathname === "/adminAcceuil/profile" ;
+
     return (
       <div id="defaultLayout">
         <aside className="sidebar">
-          <div className="logo">Reclaim-App</div>
+        <Link
+  to="/adminAcceuil"
+  className="logo"
+  style={{ color: 'black', textDecoration: 'none', transition: 'none', fontSize: '18px' }} 
+>
+  Reclaim-App
+</Link>
           <nav className="nav">
             <ul>
-              <li className={`nav-item ${location.pathname === "/adminAcceuil/Dashbord" ? "active" : ""}`}>
-                <a href="/adminAcceuil/Dashbord">Dashboard</a>
-              </li>
+
               <li className={`nav-item ${location.pathname === "/adminAcceuil/gestionUser" ? "active" : ""}`}>
                 <a href="/adminAcceuil/gestionUser">Gestion Utilisateurs</a>
               </li>
@@ -78,8 +87,23 @@ export default function AdminAcceuil(){
             </div>
           </header>
           <main className="main-content">
-            <Outlet /> {/* Render child routes here */}
-          </main>
+                    {!isExcludedPath && (
+                        <div className="welcome-message">
+                            <h1>Bienvenue, Administrateur ! </h1>
+                            <p>Votre expertise et votre leadership sont essentiels pour assurer une gestion efficace des réclamations et des comptes utilisateurs. Nous sommes ravis de vous avoir à la barre pour guider notre équipe vers l'excellence.</p>
+                            <div className="welcome-image">
+                            <img src={welcomeImage} alt="Welcome" style={{ width: '100%', height: 'auto' }} />
+                            </div>
+                        </div>
+                    )}
+                    <Outlet /> {/* Render child routes here */}
+
+
+
+                </main>
+
+
+
         </div>
       </div>
     );

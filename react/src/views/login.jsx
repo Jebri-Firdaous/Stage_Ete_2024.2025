@@ -62,13 +62,13 @@ console.log(localStorage.getItem('user'));
           <input ref={emailRef} type="email" placeholder="Adresse mail" />
           <input ref={passwordRef} type="password" placeholder="Mot de passe" />
           
-          <button className="btn btn-block">Se connecter</button>
+          <button className="btn btn-block" style={{ backgroundColor :'#4c92ca'}}>Se connecter</button>
           
-            <Link to='/forgotPassword'>mot de passe oublié?</Link>
+            <Link to='/forgotPassword' style={{ color :'#4c92ca', textDecoration :'none'}}>mot de passe oublié?</Link>
 
           <p className="message">
             Vous avez pas de compte?
-            <Link to='/register'> <br />Créer un compte</Link>
+            <Link to='/register' style={{ color :'#4c92ca', textDecoration :'none'}}> <br />Créer un compte</Link>
           </p>
         </form>
       </div>

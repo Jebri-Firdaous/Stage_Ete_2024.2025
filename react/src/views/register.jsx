@@ -95,9 +95,9 @@ export default function Register() {
                     <input type="file" className="custom-file-input" onChange={(e) => setPhoto(e.target.files[0])} style={{ marginTop: '15px' }} />
                     {errors.photo && <span style={{ color: 'red' }}>{errors.photo[0]}</span>}
 
-                    <button className="btn btn-block">S'inscrire</button>
+                    <button className="btn btn-block" style={{ backgroundColor :'#4c92ca', textDecoration :'none'}}>S'inscrire</button>
                     <div className="message">
-                        Vous avez déjà un compte? <Link to='/login'>connexion</Link>
+                        Vous avez déjà un compte? <Link to='/login' style={{ color :'#4c92ca', textDecoration :'none'}}>Connexion</Link>
                     </div>
                 </form>
             </div>

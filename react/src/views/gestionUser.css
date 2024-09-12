@@ -86,7 +86,68 @@
 
   }
   
+  .user-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
   
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-buttons {
+    grid-column: span 2;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .btn-primary {
+    background-color: #65a6db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  .btn-secondary {
+    background-color: #6e6f72;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    opacity: 0.8;
+  }
+  /* Pour ajuster la hauteur de la liste déroulante */
+select {
+  height: 50px; /* Ajustez cette valeur selon vos besoins */
+  font-size: 14px; /* Ajustez la taille de la police pour le texte */
+  padding: 5px; /* Espace intérieur pour le texte */
+  border-radius: 4px; /* Coins arrondis pour un meilleur design */
+  border: 1px solid #ccc; /* Style de la bordure */
+  background-color: #fff; /* Couleur de fond */
+  cursor: pointer; /* Change le curseur pour indiquer que c'est cliquable */
+}
+
+/* Pour contrôler le nombre d'éléments affichés dans la liste déroulante */
+select[multiple], select[size] {
+  height: auto; /* Permet une hauteur dynamique */
+  overflow-y: auto; /* Permet le défilement si le contenu dépasse */
+}
+.error-message {
+  color: red;
+  font-size: 14px;
+  display: block;
+}
+
+
 
 
   

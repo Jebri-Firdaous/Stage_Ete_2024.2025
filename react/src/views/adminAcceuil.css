@@ -12,11 +12,20 @@
 }
 
 .logo {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #007bff; /* Blue color for text */
+  text-decoration: none; /* No underline */
+  transition: none; /* Disable hover effects */
 }
+
+.logo:hover {
+  color: #007bff; /* Ensure hover color stays the same */
+  background-color: transparent; /* No background color change */
+}
+
 
 .nav {
     list-style: none;
@@ -252,6 +261,7 @@
     color: #4C51BF;
     margin-left: 10px;
   }
+
   
   .profile-container button[type="button"]:hover {
     background-color:transparent;
@@ -269,4 +279,50 @@
     max-width: 150px;
     max-height: 150px;
     border-radius: 50%;
+  }
+
+  /* Welcome Message Styling */
+.welcome-message {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-message h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.welcome-message p {
+  font-size: 16px;
+  color: #555;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.welcome-image {
+  margin-top: 20px;
+}
+
+.welcome-image img {
+  width: 200px;
+  height: auto;
+  border-radius: 10px;
+}
+
+
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    /* Add this line to create a 2px gap between buttons */
+    gap: 6px;
+
+
   }
